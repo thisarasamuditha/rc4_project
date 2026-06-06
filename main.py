@@ -56,28 +56,37 @@ def run_decrypt(is_enhanced: bool):
 
 
 def run_evaluations_and_charts():
+    """
+    Runs all metrics, prints a summary table, and saves all chart files.
+
+    Parameters:
+    None
+
+    Returns:
+    None
+    """
     try:
-        print("\nRunning all evaluations in order...")
-        sizes, original_times, enhanced_times = metrics.measure_execution_time()
-        original_avalanche, enhanced_avalanche = metrics.measure_avalanche_effect()
-        original_entropy, enhanced_entropy = metrics.measure_entropy()
-        original_freq, enhanced_freq = metrics.measure_frequency_distribution()
-        original_corr, enhanced_corr = metrics.measure_correlation()
-        print("\n╔══════════════════════════════════════════════════════════╗")
-        print("║              EVALUATION RESULTS SUMMARY                  ║")
-        print("╠══════════════════╦══════════════════╦════════════════════╣")
-        print("║ Metric           ║  Original RC4    ║  Enhanced RC4      ║")
-        print("╠══════════════════╬══════════════════╬════════════════════╣")
-        print(f"║ Entropy          ║    {original_entropy:>5.2f} bits     ║    {enhanced_entropy:>5.2f} bits       ║")
-        print(f"║ Avalanche Effect ║    {original_avalanche:>6.2f}%      ║    {enhanced_avalanche:>6.2f}%          ║")
-        print(f"║ Correlation      ║    {original_corr:>8.5f}      ║    {enhanced_corr:>8.5f}        ║")
-        print("╚══════════════════╩══════════════════╩════════════════════╝")
-        charts.plot_execution_time(sizes, original_times, enhanced_times)
-        charts.plot_avalanche(original_avalanche, enhanced_avalanche)
-        charts.plot_entropy(original_entropy, enhanced_entropy)
-        charts.plot_frequency_distribution(original_freq, enhanced_freq)
-        charts.plot_correlation(original_corr, enhanced_corr)
-        print("All charts saved to output_charts/ folder")
+        print("\nRunning all evaluations in order...")  # Announce evaluation start.
+        sizes, original_times, enhanced_times = metrics.measure_execution_time()  # Run execution time metric.
+        original_avalanche, enhanced_avalanche = metrics.measure_avalanche_effect()  # Run avalanche metric.
+        original_entropy, enhanced_entropy = metrics.measure_entropy()  # Run entropy metric.
+        original_freq, enhanced_freq = metrics.measure_frequency_distribution()  # Run frequency metric.
+        original_corr, enhanced_corr = metrics.measure_correlation()  # Run correlation metric.
+        print("\n╔══════════════════════════════════════════════════════════╗")  # Print summary top border.
+        print("║              EVALUATION RESULTS SUMMARY                  ║")  # Print summary title.
+        print("╠══════════════════╦══════════════════╦════════════════════╣")  # Print summary header divider.
+        print("║ Metric           ║  Original RC4    ║  Enhanced RC4      ║")  # Print summary header labels.
+        print("╠══════════════════╬══════════════════╬════════════════════╣")  # Print summary column divider.
+        print(f"║ Entropy          ║    {original_entropy:>5.2f} bits     ║    {enhanced_entropy:>5.2f} bits       ║")  # Print entropy row.
+        print(f"║ Avalanche Effect ║    {original_avalanche:>6.2f}%      ║    {enhanced_avalanche:>6.2f}%          ║")  # Print avalanche row.
+        print(f"║ Correlation      ║    {original_corr:>8.5f}      ║    {enhanced_corr:>8.5f}        ║")  # Print correlation row.
+        print("╚══════════════════╩══════════════════╩════════════════════╝")  # Print summary bottom border.
+        charts.plot_execution_time(sizes, original_times, enhanced_times)  # Save execution time chart.
+        charts.plot_avalanche(original_avalanche, enhanced_avalanche)  # Save avalanche chart.
+        charts.plot_entropy(original_entropy, enhanced_entropy)  # Save entropy chart.
+        charts.plot_frequency_distribution(original_freq, enhanced_freq)  # Save frequency chart.
+        charts.plot_correlation(original_corr, enhanced_corr)  # Save correlation chart.
+        print("All charts saved to output_charts/ folder")  # Confirm all charts saved.
     except Exception as error:
         print(f"Friendly Error: Evaluation flow failed. Details: {error}")
 
