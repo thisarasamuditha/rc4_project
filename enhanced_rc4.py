@@ -15,24 +15,25 @@ def enhanced_ksa(key: bytes) -> list:
     Returns:
     list: A doubly mixed S-box list with 256 integer values.
     """
-    s_box = list(range(256))  # Create the initial S-box values from 0 to 255.
+    state = list(range(256))  # Create the initial state array values from 0 to 255.
     j = 0  # Start index j at 0 for pass 1.
+    key_length = len(key)
     for i in range(256):  # First pass uses the normal key order.
-        j = (j + s_box[i] + key[i % len(key)]) % 256  # Update j using normal key bytes.
-        swap_temp = s_box[i]  # Store i value before swapping.
-        s_box[i] = s_box[j]  # Move j value into i.
-        s_box[j] = swap_temp  # Move original i value into j.
+        j = (j + state[i] + key[i % key_length]) % 256  # Update j using normal key bytes.
+        temp = state[i]  # Store current value before swapping.
+        state[i] = state[j]  # Move value at j into position i.
+        state[j] = temp  # Move original i value into j.
     reversed_key = key[::-1]  # Create reversed key bytes for extra mixing.
     j = 0  # Reset j before second pass.
     for i in range(256):  # Second pass uses reversed key order.
-        j = (j + s_box[i] + reversed_key[i % len(reversed_key)]) % 256  # Update j with reversed key.
-        swap_temp = s_box[i]  # Store i value before swapping.
-        s_box[i] = s_box[j]  # Move j value into i.
-        s_box[j] = swap_temp  # Move original i value into j.
-    return s_box  # Return the doubly mixed S-box.
+        j = (j + state[i] + reversed_key[i % key_length]) % 256  # Update j with reversed key.
+        temp = state[i]  # Store current value before swapping.
+        state[i] = state[j]  # Move value at j into position i.
+        state[j] = temp  # Move original i value into j.
+    return state  # Return the doubly mixed state array.
 
 
-def enhanced_prga(s_box: list, length: int) -> list:
+def enhanced_prga(state: list, length: int) -> list:
     """
     Enhanced PRGA with BIAS REDUCTION.
     Improvement over original: The first 256 keystream bytes are discarded.
@@ -48,23 +49,24 @@ def enhanced_prga(s_box: list, length: int) -> list:
     """
     i = 0  # Start index i at 0.
     j = 0  # Start index j at 0.
-    for _ in range(256):  # Run 256 warm-up steps to discard biased output.
+    # Warm-up: run 256 steps and discard outputs to reduce bias.
+    for _warmup in range(256):
         i = (i + 1) % 256  # Move i forward in a circular way.
-        j = (j + s_box[i]) % 256  # Update j using current S-box value.
-        swap_temp = s_box[i]  # Store i value before swapping.
-        s_box[i] = s_box[j]  # Move j value into i.
-        s_box[j] = swap_temp  # Move original i value into j.
-        discard_index = (s_box[i] + s_box[j]) % 256  # Compute output index for discard.
-        _ = s_box[discard_index]  # Read and discard this warm-up byte.
+        j = (j + state[i]) % 256  # Update j using current state value.
+        temp = state[i]  # Store current value before swapping.
+        state[i] = state[j]  # Move value at j into position i.
+        state[j] = temp  # Move original i value into j.
+        discard_index = (state[i] + state[j]) % 256  # Compute output index for discard.
+        _discarded = state[discard_index]  # Read and discard this warm-up byte.
     keystream = []  # Create a list to hold final keystream bytes.
-    for _ in range(length):  # Generate requested useful output bytes.
+    for _count in range(length):  # Generate requested useful output bytes.
         i = (i + 1) % 256  # Move i forward in a circular way.
-        j = (j + s_box[i]) % 256  # Update j using current S-box value.
-        swap_temp = s_box[i]  # Store i value before swapping.
-        s_box[i] = s_box[j]  # Move j value into i.
-        s_box[j] = swap_temp  # Move original i value into j.
-        t = (s_box[i] + s_box[j]) % 256  # Compute output index t.
-        keystream.append(s_box[t])  # Add one useful keystream byte.
+        j = (j + state[i]) % 256  # Update j using current state value.
+        temp = state[i]  # Store current value before swapping.
+        state[i] = state[j]  # Move value at j into position i.
+        state[j] = temp  # Move original i value into j.
+        output_index = (state[i] + state[j]) % 256  # Compute output index.
+        keystream.append(state[output_index])  # Add one useful keystream byte.
     return keystream  # Return only the useful bytes.
 
 
@@ -80,9 +82,9 @@ def encrypt_decrypt(data: bytes, key: bytes) -> bytes:
     Returns:
     bytes: Output bytes after XOR with enhanced RC4 keystream.
     """
-    s_box = enhanced_ksa(key)  # Build the enhanced shuffled S-box.
-    keystream = enhanced_prga(s_box, len(data))  # Generate enhanced keystream.
+    state = enhanced_ksa(key)  # Build the enhanced shuffled state array.
+    keystream = enhanced_prga(state, len(data))  # Generate enhanced keystream.
     output_bytes = []  # Create a list to store XOR results.
-    for data_byte, key_byte in zip(data, keystream):  # Process each byte pair.
-        output_bytes.append(data_byte ^ key_byte)  # XOR data with keystream byte.
+    for plain_byte, keystream_byte in zip(data, keystream):  # Process each byte pair.
+        output_bytes.append(plain_byte ^ keystream_byte)  # XOR data with keystream byte.
     return bytes(output_bytes)  # Convert list to bytes and return.

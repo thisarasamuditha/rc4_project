@@ -13,17 +13,18 @@ def ksa(key: bytes) -> list:
     Returns:
     list: A shuffled S-box list with 256 integer values.
     """
-    s_box = list(range(256))  # Create the initial S-box values from 0 to 255.
+    state = list(range(256))  # Create the initial state values from 0 to 255.
     j = 0  # Start index j at 0.
-    for i in range(256):  # Loop through all S-box positions.
-        j = (j + s_box[i] + key[i % len(key)]) % 256  # Update j using key mixing.
-        swap_temp = s_box[i]  # Temporarily store the current i value.
-        s_box[i] = s_box[j]  # Put value from position j into position i.
-        s_box[j] = swap_temp  # Put original i value into position j.
-    return s_box  # Return the shuffled S-box.
+    key_length = len(key)
+    for i in range(256):  # Loop through all state positions.
+        j = (j + state[i] + key[i % key_length]) % 256  # Update j using key mixing.
+        temp = state[i]  # Temporarily store the current i value.
+        state[i] = state[j]  # Put value from position j into position i.
+        state[j] = temp  # Put original i value into position j.
+    return state  # Return the shuffled state.
 
 
-def prga(s_box: list, length: int) -> list:
+def prga(state: list, length: int) -> list:
     """
     Pseudo-Random Generation Algorithm (PRGA) - Generates the keystream bytes.
     These bytes will be XORed with the plaintext to encrypt it.
@@ -38,14 +39,14 @@ def prga(s_box: list, length: int) -> list:
     i = 0  # Start index i at 0.
     j = 0  # Start index j at 0.
     keystream = []  # Create an empty list to hold keystream bytes.
-    for _ in range(length):  # Generate the requested number of bytes.
+    for _count in range(length):  # Generate the requested number of bytes.
         i = (i + 1) % 256  # Move i forward in a circular way.
-        j = (j + s_box[i]) % 256  # Update j using current S-box value.
-        swap_temp = s_box[i]  # Store value at i before swapping.
-        s_box[i] = s_box[j]  # Move value at j into i.
-        s_box[j] = swap_temp  # Move original i value into j.
-        t = (s_box[i] + s_box[j]) % 256  # Compute the lookup index t.
-        keystream.append(s_box[t])  # Add one keystream byte.
+        j = (j + state[i]) % 256  # Update j using current state value.
+        temp = state[i]  # Store value at i before swapping.
+        state[i] = state[j]  # Move value at j into i.
+        state[j] = temp  # Move original i value into j.
+        output_index = (state[i] + state[j]) % 256  # Compute the lookup index.
+        keystream.append(state[output_index])  # Add one keystream byte.
     return keystream  # Return all generated keystream bytes.
 
 
@@ -61,9 +62,9 @@ def encrypt_decrypt(data: bytes, key: bytes) -> bytes:
     Returns:
     bytes: Output bytes after XOR with RC4 keystream.
     """
-    s_box = ksa(key)  # Build the shuffled S-box from the key.
-    keystream = prga(s_box, len(data))  # Generate keystream matching input length.
+    state = ksa(key)  # Build the shuffled state from the key.
+    keystream = prga(state, len(data))  # Generate keystream matching input length.
     output_bytes = []  # Create a list to store XOR results.
-    for data_byte, key_byte in zip(data, keystream):  # Process each byte pair.
-        output_bytes.append(data_byte ^ key_byte)  # XOR data with keystream byte.
+    for plain_byte, keystream_byte in zip(data, keystream):  # Process each byte pair.
+        output_bytes.append(plain_byte ^ keystream_byte)  # XOR data with keystream byte.
     return bytes(output_bytes)  # Convert list to bytes and return.

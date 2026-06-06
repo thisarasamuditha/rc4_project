@@ -5,7 +5,7 @@ import os
 import matplotlib.pyplot as plt
 
 
-def plot_execution_time(sizes, orig_times, enh_times):
+def plot_execution_time(input_sizes, original_times_ms, enhanced_times_ms):
     """
     Creates a line chart of encryption execution time across input sizes.
 
@@ -21,8 +21,8 @@ def plot_execution_time(sizes, orig_times, enh_times):
         print("[Chart] Creating execution time chart...")  # Announce chart creation.
         os.makedirs("output_charts", exist_ok=True)  # Ensure output folder exists.
         plt.figure(figsize=(8, 5))  # Create a new figure with readable size.
-        plt.plot(sizes, orig_times, color="red", marker="o", label="Original RC4")  # Plot Original RC4 line.
-        plt.plot(sizes, enh_times, color="blue", marker="o", label="Enhanced RC4")  # Plot Enhanced RC4 line.
+        plt.plot(input_sizes, original_times_ms, color="red", marker="o", label="Original RC4")  # Plot Original RC4 line.
+        plt.plot(input_sizes, enhanced_times_ms, color="blue", marker="o", label="Enhanced RC4")  # Plot Enhanced RC4 line.
         plt.title("Execution Time Comparison")  # Add chart title.
         plt.xlabel("Input Size (bytes)")  # Label x-axis.
         plt.ylabel("Time (milliseconds)")  # Label y-axis.
@@ -38,7 +38,7 @@ def plot_execution_time(sizes, orig_times, enh_times):
         return ""  # Return empty path on failure.
 
 
-def plot_avalanche(orig_val, enh_val):
+def plot_avalanche(original_avalanche_pct, enhanced_avalanche_pct):
     """
     Creates a bar chart for avalanche effect with a 50% ideal reference line.
 
@@ -54,7 +54,7 @@ def plot_avalanche(orig_val, enh_val):
         os.makedirs("output_charts", exist_ok=True)  # Ensure output folder exists.
         plt.figure(figsize=(7, 5))  # Create a new figure with readable size.
         labels = ["Original RC4", "Enhanced RC4"]  # Define bar labels.
-        values = [orig_val, enh_val]  # Define bar values.
+        values = [original_avalanche_pct, enhanced_avalanche_pct]  # Define bar values.
         plt.bar(labels, values, color=["red", "blue"])  # Draw the bar chart.
         plt.axhline(y=50.0, color="black", linestyle="--", label="Ideal (50%)")  # Draw ideal reference line.
         plt.title("Avalanche Effect Comparison")  # Add chart title.
@@ -72,7 +72,7 @@ def plot_avalanche(orig_val, enh_val):
         return ""  # Return empty path on failure.
 
 
-def plot_entropy(orig_val, enh_val):
+def plot_entropy(original_entropy_bits, enhanced_entropy_bits):
     """
     Creates a bar chart for entropy values with an 8.0-bit ideal reference line.
 
@@ -88,7 +88,7 @@ def plot_entropy(orig_val, enh_val):
         os.makedirs("output_charts", exist_ok=True)  # Ensure output folder exists.
         plt.figure(figsize=(7, 5))  # Create a new figure with readable size.
         labels = ["Original RC4", "Enhanced RC4"]  # Define bar labels.
-        values = [orig_val, enh_val]  # Define bar values.
+        values = [original_entropy_bits, enhanced_entropy_bits]  # Define bar values.
         plt.bar(labels, values, color=["red", "blue"])  # Draw the bar chart.
         plt.axhline(y=8.0, color="black", linestyle="--", label="Ideal (8.0 bits)")  # Draw ideal reference line.
         plt.title("Shannon Entropy Comparison")  # Add chart title.
@@ -106,7 +106,7 @@ def plot_entropy(orig_val, enh_val):
         return ""  # Return empty path on failure.
 
 
-def plot_frequency_distribution(orig_freq, enh_freq):
+def plot_frequency_distribution(original_frequencies, enhanced_frequencies):
     """
     Creates side-by-side frequency distribution charts for Original and Enhanced RC4.
 
@@ -122,11 +122,11 @@ def plot_frequency_distribution(orig_freq, enh_freq):
         os.makedirs("output_charts", exist_ok=True)  # Ensure output folder exists.
         x_values = list(range(256))  # Create x-axis byte values from 0 to 255.
         figure, axes = plt.subplots(1, 2, figsize=(12, 4))  # Create two side-by-side subplots.
-        axes[0].bar(x_values, orig_freq, color="red")  # Draw Original RC4 distribution.
+        axes[0].bar(x_values, original_frequencies, color="red")  # Draw Original RC4 distribution.
         axes[0].set_title("Original RC4 Frequency")  # Set left subplot title.
         axes[0].set_xlabel("Byte Value (0-255)")  # Set left x-axis label.
         axes[0].set_ylabel("Frequency Count")  # Set left y-axis label.
-        axes[1].bar(x_values, enh_freq, color="blue")  # Draw Enhanced RC4 distribution.
+        axes[1].bar(x_values, enhanced_frequencies, color="blue")  # Draw Enhanced RC4 distribution.
         axes[1].set_title("Enhanced RC4 Frequency")  # Set right subplot title.
         axes[1].set_xlabel("Byte Value (0-255)")  # Set right x-axis label.
         axes[1].set_ylabel("Frequency Count")  # Set right y-axis label.
@@ -142,7 +142,7 @@ def plot_frequency_distribution(orig_freq, enh_freq):
         return ""  # Return empty path on failure.
 
 
-def plot_correlation(orig_val, enh_val):
+def plot_correlation(original_corr, enhanced_corr):
     """
     Creates a bar chart for correlation values with a 0 ideal reference line.
 
@@ -157,7 +157,7 @@ def plot_correlation(orig_val, enh_val):
         print("[Chart] Creating correlation chart...")  # Announce chart creation.
         os.makedirs("output_charts", exist_ok=True)  # Ensure output folder exists.
         labels = ["Original RC4", "Enhanced RC4"]  # Define bar labels.
-        values = [orig_val, enh_val]  # Define bar values.
+        values = [original_corr, enhanced_corr]  # Define bar values.
         plt.figure(figsize=(7, 5))  # Create a new figure with readable size.
         plt.bar(labels, values, color=["red", "blue"])  # Draw the bar chart.
         plt.axhline(y=0.0, color="black", linestyle="--", label="Ideal (0)")  # Draw ideal reference line.
