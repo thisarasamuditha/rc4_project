@@ -124,9 +124,9 @@ def run_evaluations_and_charts():
     None
     """
     try:
-        print("\nRunning all evaluations in order...")  # Announce evaluation start.
-        sizes, original_times, enhanced_times = metrics.measure_execution_time()  # Run execution time metric.
-        original_avalanche, enhanced_avalanche = metrics.measure_avalanche_effect()  # Run avalanche metric.
+        print("\nRunning all evaluations in order...")  
+        sizes, original_times, enhanced_times = metrics.measure_execution_time()  
+        original_avalanche, enhanced_avalanche = metrics.measure_avalanche_effect()  
         original_entropy, enhanced_entropy = metrics.measure_entropy()  # Run entropy metric.
         original_freq, enhanced_freq = metrics.measure_frequency_distribution()  # Run frequency metric.
         original_corr, enhanced_corr = metrics.measure_correlation()  # Run correlation metric.
